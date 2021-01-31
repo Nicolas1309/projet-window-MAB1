@@ -27,6 +27,7 @@
 \newtheorem{prop}[thm]{Proposition}
 \newtheorem{lem}[thm]{Lemma}
 \newtheorem{corollary}[thm]{Corollary}
+\newtheorem{rem}{Remark}
 
 \title{Algorithm for good window mean-payoff in two players games}
 \author{Nicolas Lecomte}
@@ -42,60 +43,85 @@ Now, we can define the following:
 
 \[\forall s \in S, C_0(s)=0 \wedge \forall 1 \leqslant i \leqslant l_{max}, C_i(s) =
 \begin{cases}
-\max_{(s, s') \in E} \{ \max \{w(s, s'), w(s, s') + C_{i-1}(s')\} \} & \text{if } s \in S_1,\\
+\max_{(s, s') \in E} \{ \min \{w(s, s'), w(s, s') + C_{i-1}(s')\} \} & \text{if } s \in S_1,\\
 \min_{(s, s') \in E} \{ \max \{w(s, s'), w(s, s') + C_{i-1}(s')\} \} & \text{if } s \in S_2.
 \end{cases}
 \]
 
-The main idea behind this definition is that the value $C_i(s)$ denotes the best sum that $\mathcal{P}_1$ can force in at most $i$ steps from the state $s$ in $G$. The following lemma formalizes this intuition.
+The main idea behind this definition is that the value $C_i(s)$ denotes the best sum that $\mathcal{P}_1$ can force in at most $i$ steps from the state $s$ in $G$. In other words, $C_i(s)$ is the smallest sum that $\mathcal{P}_1$ can compensate in $i$ steps. The following lemma formalizes this intuition.
 
 \begin{lem}
 Let $1 \leqslant i \leqslant l_{max}$ and $s \in S$, we have:
 
-\[ C_i(s) = max_{\sigma_1 \in \Lambda_1} min_{\sigma_2 \in \Lambda_2} BestSum_i(Outcome_G(s, \sigma_1, \sigma_2)) \]
+\[ C_i(s) = \max_{\sigma_1 \in \Sigma_1} \min_{\sigma_2 \in \Sigma_2} BestSum_i(Outcome_G(s, \sigma_1, \sigma_2)) \]
 
-where for all $\pi \in Plays_s(G), BestSum_i(\pi) = \max \{n \in \IN | \exists j \leqslant i, \sum_{k=0}^{j-1} w(e_\pi (k, k+1)) \geqslant n \}$. So, $BestSum_i(\pi)$ is the best sum on the weights of the edges along a play $\pi$ within $i$ steps.
+where for all $\pi \in Plays(G), BestSum_i(\pi) = \max \{n \in \IN | \exists j \leqslant i, \sum_{k=0}^{j-1} w(e_\pi (k, k+1)) \geqslant n \}$. So, $BestSum_i(\pi)$ is the best sum on the weights of the edges along a play $\pi$ within $i$ steps.
 
 \end{lem}
 
+\begin{rem}
+The maximum and minimum exist because, if we fix $s \in S$ and $1 \leqslant i \leqslant l_{max}$, the supremum and infimum are reached in the formula $$\sup_{\sigma_1 \in \Sigma_1} \inf_{\sigma_2 \in \Sigma_2} BestSum_i(Outcome_G(s, \sigma_1, \sigma_2))$$
+
+Indeed, one can observe that $BestSum_i$ depends only on the prefix of length $i$ of $Outcome_G(s, \sigma_1, \sigma_2)$. So, as there is a finite number of prefixes of length $i$ in the game (bounded by $|S|^i$), there is also a finite number of possible values for $BestSum_i$. Thus, the supremum and infimum are reached.
+\end{rem}
+
 \begin{proof}
-We will prove the proposition by induction on $i$. So, let's fix a state $s \in S$.
+We will prove the proposition by induction on $i$. So, let us fix a state $s \in S$.
 
 Basic case: $i = 1$. If $s$ belongs to $S_1$, then $C_1(s) = \max_{(s, s') \in E} w(s, s')$ and, clearly, the best sum that we can see along a play in $1$ step is the biggest weight on an edge leaving $s$. Furthermore, this edge can be taken in a strategy of player 1 and the result does not depend on any strategy of player $2$. A symmetrical argument can be used if $s$ belongs to $S_2$.
 
-Induction step: let $1 \leqslant k < l_{max}$ such that the lemma is true for $i = k$. We will thus show that it is still true for $i = k+1$. Let $s \in S$ a state of the game.
+Induction step: let $1 \leqslant i < l_{max}$ be such that the lemma is true for $i$. We will thus show that it is still true for $i+1$ with this sequence of equalities that will be detailled, if it is necessary, later.
 
-Let $s' \in S$ a successor of $s$ in $G$, we can consider $BS_{k+1}(s, s')$ the best sum that $\mathcal{P}_1$ can ensure in max $k+1$ steps where the first step is the edge $(s, s')$.
+Note that we write $\pi$ instead of $Outcome_G(s, \sigma_1, \sigma_2)$ for $\sigma_1 \in \Sigma_1$ and $\sigma_2 \in \Sigma_2$ for a better readability.
 
-If $BS_{k+1}(s, s')$ comes from a path of length $1$, then we have clearly that $BS_{k+1}(s, s')= w(s, s')$.
+\begin{align}
+&\max_{\sigma_1 \in \Sigma_1} \min_{\sigma_2 \in \Sigma_2} BestSum_{i+1}(Outcome_G(s, \sigma_1, \sigma_2)) \\
+&= \max_{\sigma_1 \in \Sigma_1} \min_{\sigma_2 \in \Sigma_2} \max \bigg\{ \sum_{k=0}^{j-1} w(e_{\pi}(k, k+1)) | 0 < j \leqslant i+1 \bigg\} \\
+&= \max_{\sigma_1 \in \Sigma_1} \min_{\sigma_2 \in \Sigma_2} \max \bigg\{ w(e_{\pi}(0, 1) + \sum_{k=1}^{j-1} w(e_{\pi}(k, k+1)) | 0 < j \leqslant i+1 \bigg\} \\
+&= \max_{\sigma_1 \in \Sigma_1} \min_{\sigma_2 \in \Sigma_2} \max \bigg\{ w(e_{\pi}(0, 1)), \max \{w(e_{\pi}(0, 1)) + \sum_{k=1}^{j-1} w(e_{\pi}(k, k+1)) | 0 < j \leqslant i+1 \}\bigg\} \\
+&= \max_{\sigma_1 \in \Sigma_1} \min_{\sigma_2 \in \Sigma_2} \max \bigg\{ w(e_{\pi}(0, 1)), w(e_{\pi}(0, 1)) + \max \Big\{\sum_{k=1}^{j-1} w(e_{\pi}(k, k+1)) | 0 < j \leqslant i+1 \Big\}\bigg\} \\
+&= \max_{\sigma_1 \in \Sigma_1} \min_{\sigma_2 \in \Sigma_2} \max \bigg\{ w(s, \sigma_1(s)), w(s, \sigma_1(s)) + \max \Big\{\sum_{k=1}^{j-1} w(e_{\pi}(k, k+1)) | 0 < j \leqslant i+1 \Big\}\bigg\} \\
+&= \max_{\sigma_1 \in \Sigma_1} \min_{\sigma_2 \in \Sigma_2} \max \bigg\{ w(s, \sigma_1(s)), w(s, \sigma_1(s)) + \max \Big\{\sum_{k=0}^{j-1} w(e_{Outcome_G(\sigma_1(s), \tilde{\sigma}_1, \tilde{\sigma}_2)}(k, k+1)) | 0 < j \leqslant i \Big\}\bigg\} \\
+&= \max_{\sigma_1 \in \Sigma_1} \min_{\sigma_2 \in \Sigma_2} \max \{ w(s, \sigma_1(s)), w(s, \sigma_1(s)) + BestSum_i(Outcome_G(\sigma_1(s), \tilde{\sigma}_1, \tilde{\sigma}_2))\} \\
+&= \max_{\sigma_1 \in \Sigma_1} \max \{ w(s, \sigma_1(s)), w(s, \sigma_1(s)) + \min_{\sigma_2 \in \Sigma_2} BestSum_i(Outcome_G(\sigma_1(s), \tilde{\sigma}_1, \tilde{\sigma}_2))\} \\
+&= \max_{(s, s') \in E} \max_{\sigma_1 \in \Sigma_1 \text{ tq } \sigma_1(s) = s'} \max \{ w(s, s'), w(s, s') + \min_{\sigma_2 \in \Sigma_2} BestSum_i(Outcome_G(s', \tilde{\sigma}_1, \tilde{\sigma}_2))\} \\
+&= \max_{(s, s') \in E} \max \{ w(s, s'), w(s, s') + \max_{\sigma_1 \in \Sigma_1 \text{ tq } \sigma_1(s) = s'} \min_{\sigma_2 \in \Sigma_2} BestSum_i(Outcome_G(s', \tilde{\sigma}_1, \tilde{\sigma}_2))\} \\
+&= \max_{(s, s') \in E} \max \{ w(s, s'), w(s, s') + \max_{\sigma_1 \in \Sigma_1} \min_{\sigma_2 \in \Sigma_2} BestSum_i(Outcome_G(s', \tilde{\sigma}_1, \tilde{\sigma}_2))\} \\
+&= \max_{(s, s') \in E} \max \{ w(s, s'), w(s, s') + \max_{\sigma_1 \in \Sigma_1} \min_{\sigma_2 \in \Sigma_2} BestSum_i(Outcome_G(s', \sigma_1, \sigma_2))\} \\
+&= \max_{(s, s') \in E} \max \{ w(s, s'), w(s, s') + C_i(s')\} \\
+&= C_{i+1}(s)
+\end{align}
 
-Now, suppose that $BS_{k+1}(s, s')$ comes from a path of minimal length $2$ and consider $r$ the value such that $BS_{k+1}(s, s') = w(s, s') + r$. So, $r$ is the best sum that can be ensured in max $k$ steps from $s'$ in $G$. Thus, we have that $r = C_k(s')$ by the hypothesis of the induction.
-
-So, it's clear that $BS_{k+1}(s, s') = max\{w(s, s'), w(s, s')+C_k(s')\}$.
-There are now two possibilities for $s$:
-\begin{itemize}
-\item If $s$ belongs to $S_1$, then, player 1 can use the strategy given in the induction hypothesis and plays $(s, s^*)$ such that $BS_{k+1}(s, s^*) = max_{(s, s') \in E} BS_{k+1}(s, s') = C_{k+1}(s)$. This strategy gives the best value because of the induction hypothesis and the maximization of the values $BS_{k+1}(s, s')$.
-
-\item If $s$ belongs to $S_2$, then a similar argument can show that $C_{k+1}(s)$ is the best sum that $\mathcal{P}_1$ can ensure in at most $k+1$ steps from $s$ in $G$.
-\end{itemize}
+%Let $s' \in S$ be a successor of $s$ in $G$, we can consider $BS_{k+1}(s, s')$ the best sum that $\mathcal{P}_1$ can ensure in max $k+1$ steps where the first step is the edge $(s, s')$.
+%
+%If $BS_{k+1}(s, s')$ comes from a path of length $1$, then we have clearly that $BS_{k+1}(s, s')= w(s, s')$.
+%
+%Now, suppose that $BS_{k+1}(s, s')$ comes from a path of minimal length $2$ and consider $r$ the value such that $BS_{k+1}(s, s') = w(s, s') + r$. So, $r$ is the best sum that can be ensured in max $k$ steps from $s'$ in $G$. Thus, we have that $r = C_k(s')$ by the hypothesis of the induction.
+%
+%So, it's clear that $BS_{k+1}(s, s') = \max \{w(s, s'), w(s, s')+C_k(s')\}$.
+%There are now two possibilities for $s$:
+%\begin{itemize}
+%\item If $s$ belongs to $S_1$, then, player 1 can use the strategy given in the induction hypothesis and plays $(s, s^*)$ such that $BS_{k+1}(s, s^*) = \max_{(s, s') \in E} BS_{k+1}(s, s') = C_{k+1}(s)$. This strategy gives the best value because of the induction hypothesis and the maximization of the values $BS_{k+1}(s, s')$.
+%
+%\item If $s$ belongs to $S_2$, then a similar argument can show that $C_{k+1}(s)$ is the best sum that $\mathcal{P}_1$ can ensure in at most $k+1$ steps from $s$ in $G$.
+%\end{itemize}
 \end{proof}
 
 \begin{prop}
 We have, for all state $s \in S$:
-\[C_{l_{max}}(s) \geqslant 0 \Leftrightarrow \text{ s is a winning state in G for $\mathcal{P}_1$ for the winodw objective } GW_{MP}(G, l_{max})\]
+\[C_{l_{max}}(s) \geqslant 0 \iff \text{ s is a winning state in G for $\mathcal{P}_1$ for the winodw objective } GW_{MP}(G, l_{max})\]
 \end{prop}
 
 \begin{proof}
-Let $s \in S$ a state of the game,\\
+Let $s \in S$ be a state of the game,\\
 We have the following equivalences:
-\begin{align*}
-C_{l_{max}}(s) \geqslant 0 &\Leftrightarrow max_{\sigma_1 \in \Lambda_1} min_{\sigma_2 \in \Lambda_2} BestSum_{l_{max}}(Outcome_G(s, \sigma_1, \sigma_2)) \geqslant 0\\
-						   &\Leftrightarrow \exists \sigma_1 \in \Lambda_1, \forall \sigma_2 \in \Lambda_2, BestSum_{l_{max}}(Outcome_G(s, \sigma_1, \sigma_2)) \geqslant 0\\
-						   &\Leftrightarrow \exists \sigma_1 \in \Lambda_1, \forall \sigma_2 \in \Lambda_2, \exists n \in \IN, \exists j \leqslant l_{max}, \sum_{k=0}^{l_{max}-1} w(e_{Outcome_G(s, \sigma_1, \sigma_2)} (k, k+1)) \geqslant n\\
-						   &\Leftrightarrow \exists \sigma_1 \in \Lambda_1, \forall \sigma_2 \in \Lambda_2, \exists j \leqslant l_{max}, \sum_{k=0}^{l_{max}-1} w(e_{Outcome_G(s, \sigma_1, \sigma_2)} (k, k+1)) \geqslant 0\\
-						   &\Leftrightarrow \exists \sigma_1 \in \Lambda_1, \forall \sigma_2 \in \Lambda_2, Outcome_G(s, \sigma_1, \sigma_2) \in GW_{MP}(G, l_{max})\\
-						   &\Leftrightarrow \text{ s is a winning state in G for $\mathcal{P}_1$ for the objective } GW_{MP}(G, l_{max})
-\end{align*}
+\begin{align}
+C_{l_{max}}(s) \geqslant 0 &\iff max_{\sigma_1 \in \Sigma_1} min_{\sigma_2 \in \Sigma_2} BestSum_{l_{max}}(Outcome_G(s, \sigma_1, \sigma_2)) \geqslant 0\\
+						   &\iff \exists \sigma_1 \in \Sigma_1, \forall \sigma_2 \in \Sigma_2, BestSum_{l_{max}}(Outcome_G(s, \sigma_1, \sigma_2)) \geqslant 0\\
+						   &\iff \exists \sigma_1 \in \Sigma_1, \forall \sigma_2 \in \Sigma_2, \exists j \leqslant l_{max}, \sum_{k=0}^{l_{max}-1} w(e_{Outcome_G(s, \sigma_1, \sigma_2)} (k, k+1)) \geqslant 0\\
+						   &\iff \exists \sigma_1 \in \Sigma_1, \forall \sigma_2 \in \Sigma_2, Outcome_G(s, \sigma_1, \sigma_2) \in GW_{MP}(G, l_{max})\\
+						   &\iff \text{ s is a winning state in G for $\mathcal{P}_1$ for the objective } GW_{MP}(G, l_{max})
+\end{align}
 
 \end{proof}
 
