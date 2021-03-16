@@ -1,0 +1,264 @@
+\documentclass{article}
+
+\usepackage{tabularx}
+\usepackage{graphicx}
+\usepackage{url}
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage[english]{babel}
+\usepackage{amsmath, amssymb, amsthm, verbatim}
+\usepackage{IEEEtrantools}
+\usepackage[margin=1in]{geometry}
+\usepackage[colorlinks, linkcolor=blue]{hyperref}
+\usepackage{epigraph}
+\usepackage{mathrsfs}
+\usepackage[toc,page]{appendix}
+\usepackage{xcolor}
+\usepackage{enumitem}
+
+\usepackage{algorithmic, algorithm}
+\usepackage{float}
+
+\newcommand{\IR}{\mathbb{R}}
+\newcommand{\IQ}{\mathbb{Q}}
+\newcommand{\IZ}{\mathbb{Z}}
+\newcommand{\IN}{\mathbb{N}}
+\newcommand{\IP}{\mathbb{P}}
+\newcommand{\CG}{\mathcal{G}}
+\newcommand{\SG}{(S, S_1, S_2, A, \delta)}
+\newcommand{\CD}{\mathcal{D}}
+\newcommand{\Hists}{\textbf{Hists}}
+\newcommand{\Last}{\textbf{Last}}
+\newcommand{\Cyl}{\textbf{Cyl}}
+\newcommand{\Reach}{\textbf{Reach}}
+\newcommand{\Safety}{\textbf{Safety}}
+\newcommand{\Buchi}{\textbf{Buchi}}
+\newcommand{\coBuchi}{\textbf{coBuchi}}
+\newcommand{\DFW}{\textbf{DFW}}
+\newcommand{\FW}{\textbf{FW}}
+\theoremstyle{plain}
+
+\newtheorem{thm}{Theorem}
+\newtheorem{property}{Property}
+\newtheorem{prop}[thm]{Proposition}
+\newtheorem{lem}[thm]{Lemma}
+\newtheorem{corollary}[thm]{Corollary}
+\newtheorem{rem}{Remark}
+
+\title{Window objectives in stochastic games}
+\author{Nicolas Lecomte}
+\date{\today}
+
+\begin{document}
+
+\maketitle
+
+\section{Preliminaries}
+\paragraph{Probability distributions.} Given a set $S$, let $\mathcal{D}(S)$ denote the set of rational probability distributions over $S$. Given a distribution $\iota \in \mathcal{D}(S)$, let $Supp(\iota) = \{s \in S ~|~ \iota(s) > 0\}$ denote its support.
+
+\paragraph{Stochastic games.} A finite turn-based \textit{stochastic game}(SG) is a tuple $\mathcal{G} = \SG$ where $S$ is a finite set of states partitionned into $S_1$ and $S_2$ the states that belong to first (resp. second) player, $A$ is a set of actions and $\delta: S \times A \rightarrow \mathcal{D}(S)$ is the transition function. For any state $s$, $A(s)$ denotes the possible actions in that state.
+We assume without loss of generality that SGs don't contain deadlocks: for all $s \in S, A(s) \neq \emptyset$.
+
+A run is an infinite sequence $\rho = s_0 a_0 s_1 a_1 \cdots \in (SA)^{\omega}$ such that, for all $i \in \IN, a_i \in A(s_i)$ and $s_{i+1} \in Supp(\delta(s_i, a_i))$. The prefix up to the $n$-th state of $\rho$ is the finite sequence $\rho [0, n] = s_0 a_0 \cdots a_{n-1} s_n$. Similarly, the suffix of $\rho$ starting form the $n$-th state of $\rho$ is the run $\rho [n, + \infty] = s_n a_n s_{n+1} a_{n+1} \cdots$. Moreover, we denote by $\rho [n]$ the $n$-th state $s_n$ of $\rho$. Finite prefixes of runs are called histories. We denote the last state of history $h$ by $\Last(h)$. We respectively denote the sets of runs and histories of a SQ $\CG$ by $Runs(\CG)$ and $\Hists(\CG)$. We also denote the histories ending in a state of $S_1$ or $S_2$ by $\Hists_1(\CG)$, respectively $\Hists_2(\CG)$.
+
+\paragraph{Strategies.} A strategy $\sigma$ for the first player is a function $\Hists_1(\CG) \rightarrow \mathcal{D}(A)$ such that  for all $h \ \Hists_1(\CG)$ ending in $s$, we have $Supp(\sigma(h)) \subseteq A(s)$. The set of all strategies of the first player is $\Sigma$. We also define similarly a strategy for the second player and denote the set of all of his strategies by $\Gamma$.
+
+\paragraph{Induced MDP and MC.} TODO. %TODO + add notation of probability for the MC
+
+\paragraph{Decision problem.} An objective for a SG $\CG = \SG$ is a measurable set of runs $E \subseteq (SA)^{\omega}$. Given an initial state $s$, a threshold $\alpha \in [0, 1] \cap \IQ$ and such an objective $E$, the threshold probability problem is to decide whether there exists a strategy $\sigma \in \Sigma$ such that $\IP^{\sigma, \gamma}_{\CG, s} [E] \geqslant \alpha$ for all $\gamma \in \Gamma$ or not.
+
+\paragraph{Weights and priorities.} In this paper, we always assume a SG $\CG = \SG$ with either a weight function $w: A \rightarrow \IZ$ of largest absolute weight $W$, or a priority function $p: S \rightarrow \{0, 1, \cdots, d\}$ with $d \leqslant |S|+1$ (w.l.o.g.).
+
+\paragraph{Good windows.} Given a weighted SG $\CG$ and $\lambda$, we define the good window mean-payoff objective
+$$GW_{mp}(\lambda) = \Big\{ \rho \in Runs(\CG) ~|~ \exists l < \lambda, \text{MP} \big( \rho [0, l+1] \big) \geqslant 0 \Big\}$$
+where $\text{MP}$ is a function that assign to a history $h$ the average of the weight of the actions along $h$.
+This objective requires the existence of a window of size bounded by $\lambda$ and starting at the first position of the run, over which the mean-payoff is at least equal to zero (w.l.o.g.).
+
+Similarly, given a SG $\CG$ with priority function $p$, we define the good window parity objective,
+$$GW_{par}(\lambda) = \Big\{ \rho \in Runs(\CG) ~|~ \exists l < \lambda, \big( p(\rho [l]) \text{ mod } 2 = 0 \wedge \forall k < l, p(\rho [l]) < p( \rho [k]) \big) \Big\}$$
+requiring the existence of a window of size bounded by $\lambda$ and starting at the first position of the run, for which the last priority is even and is the smallest within the window.
+
+To preserve our generic approach, we use subscripts \textbf{mp} and \textbf{par} for mean-payoff and parity variants respectively. So, given $\Omega = \{ \textbf{mp}, \textbf{par}\}$ and a run $\rho \in Runs(\CG)$, we say that an $\Omega$-window is closed in at most $\lambda$ steps from $\rho [i]$ if $\rho [i, + \infty]$ is in $GW_{\Omega}(\lambda)$. If a window is not yet closed, we call it open.
+
+\paragraph{Fixed variants.}
+Given $\lambda > 0$, we define the direct fixed window objective
+$$\DFW_{\Omega}(\lambda) = \{ \rho \in Runs(\CG) ~|~ \forall j \geqslant 0, \rho [j, + \infty] \in GW_{\Omega}(\lambda) \}$$
+asking for all $\Omega$-windows to be closed within $\lambda$ steps along the run.
+
+We also define the fixed window objective
+$$\FW_{\Omega}(\lambda) = \{ \rho \in Runs(\CG) ~|~ \exists i \geqslant 0, \rho [i, + \infty] \in \DFW_{\Omega}(\lambda) \}$$
+that is the prefix-independent version pf the previous one: it requires it to be eventually satisfied.
+
+%\paragraph{Bounded variants.} Inutile ?
+
+\section{Reductions}
+\paragraph{Mean-payoff.} Let $\CG = \SG$ be a SG with weight function $w$ (of maximal absolute weight $W$), and $\lambda > 0$ be the window size. We define the unfolding SG $\CG_\lambda = (\tilde{S}, \tilde{S}_1, \tilde{S}_2, A, \tilde{\delta})$ as follows:
+\begin{itemize}
+\item[•] $\tilde{S} = S \times \{0, \dots, \lambda\} \times \{- \lambda \cdot W, \dots, 0\}$.
+\item[•] $\tilde{S}_1 = S_1 \times \{0, \dots, \lambda\} \times \{- \lambda \cdot W, \dots, 0\}$.
+\item[•] $\tilde{S}_2 = S_2 \times \{0, \dots, \lambda\} \times \{- \lambda \cdot W, \dots, 0\}$.
+\item[•] $\tilde{\delta}: \tilde{S} \times A \rightarrow \CD (\tilde{S})$ is defined as follows for all $a$ in $A$ and $(s, l, z)$ in $\tilde{S}$:
+\begin{itemize}
+\item If $l < \lambda$ and $z + w(a) < 0$ and $\delta(s, a)(t) = \nu$:
+$$\tilde{\delta}((s, l, z), a)(t, l+1, z+w(a)) = \nu,$$
+\item If $\delta(s, a)(t) = \nu$ and either $l = \lambda$ and $z < 0$ or $z+w(a) \geqslant 0$:
+$$\tilde{\delta}((s, l, z), a)(t, 0, 0) = \nu$$
+\end{itemize}
+\item[•] Once an initial state $s_{init} \in S$ is fixed in $\CG$, the associated initial state in $\CG_{\lambda}$ is $\tilde{s}_{init} = (s_{init}, 0, 0) \in \tilde{S}.$
+\end{itemize}
+Note that $\CG_{\lambda}$ is unweighted: it keeps track in eahc of its states of the current state of $\CG$, the size of the current open window as well as the current sum of weights in the window: these two values are reset whenever a window is closed (right hand-side of the "either" condition) or stays open for $\lambda$ steps (left hand-side). A key uderlying property used here is the inductive property on windows.
+
+\begin{property} (Inductive property of windows).
+Consider a run $\rho = s_0 a_0 s_1 a_1 \dots$ in a SG. Fix a window starting in position $i \geqslant 0$. Let $j$ be the position in which this window gets closed, assuming it does. Then, all windows in positions from $i$ to $j$ also close in $j$.
+\end{property}
+The validity of this property is easy to check by contradiction (if it was not the case,then the window iniwould close before $j$). This property is fundamental in our reduction: without it we would have to keep track of all open windows in parallel, which would result in a blow-up exponential in $\lambda$.
+
+In the upcoming reductions, the set of states to avoid will be
+$$B = \{ (s, l, z) ~|~(l = \lambda) \wedge (z < 0) \}$$
+By construction of $\CG_{\lambda}$, it exactly corresponds to windows staying open for $\lambda$ steps.
+
+\paragraph{Parity.}
+Let $\CG = \SG$ be a SG with priority function $p$, and $\lambda > 0$ be the window size. We define the unfolding SG $\CG_{\lambda} = (\tilde{S}, \tilde{S}_1, \tilde{S}_2, A, \tilde{\delta})$ as follows:
+\begin{itemize}
+\item[•] $\tilde{S} = S \times \{0, \dots, \lambda\} \times \{0, 1, \dots d\}$.
+\item[•] $\tilde{S}_1 = S_1 \times \{0, \dots, \lambda\} \times \{0, 1, \dots d\}$.
+\item[•] $\tilde{S}_2 = S_2 \times \{0, \dots, \lambda\} \times \{0, 1, \dots d\}$.
+\item[•] $\tilde{\delta}: \tilde{S} \times A \rightarrow \CD(\tilde{S})$ is defined as follows for all $a$ in $A$ and $(s, l, c)$ in $\tilde{S}$:
+\begin{itemize}
+\item If $\delta(s, a)(t) = \nu$ and $l < \lambda - 1$ and $c \text{ mod }2 = 1$:
+$$\tilde{\delta}((s, l, c), a)(t, l+1, \min(c, p(t))) = \nu$$
+\item If $\delta(s, a)(t) = \nu$ and $l = \lambda - 1$ and $c \text{ mod }2 = 1$:
+$$\tilde{\delta}((s, l, c), a)(t, 0, p(t)) = \nu$$
+\item If $\delta(s, a)(t) = \nu$ and $c \text{ mod }2 = 0$:
+$$\tilde{\delta}((s, l, c), a)(t, 0, p(t)) = \nu$$
+\end{itemize}
+\item[•] Once an initial state $s_{init} \in S$ is fixed in $\CG$, the associated one in $\CG_{\lambda}$ is $\tilde{s}_{init} = (s_{init}, 0, p(s_{init})) \in \tilde{S}$.
+\end{itemize}
+This unfolding keeps track in each of its states of the current state of the original SG, the size of the current window and the minimum priority in the window: again, these two values are reset whenever a window is closed or stays open for $\lambda$ steps.
+
+In this case, the set of states to avoid will be $B = \{(s, l, c) ~|~(l = \lambda - 1) \wedge (c \text{ mod }2 = 1)\}$, with an equivalent interpretation.
+
+\paragraph{Objectives.}
+We treat mean-payoff and parity versions in a unified way from now on.  As stated before, the set $B$ represents in both cases windows being open for $\lambda$ steps and should be avoided: at all times for direct variants, eventually for prefix-independent ones. We define the following objectives over the unfoldings:
+
+\begin{align*}
+&\Reach(\CG_{\lambda}) = (\tilde{S}A)^*BA(\tilde{S}A)^{\omega}, & \Safety(\CG_{\lambda}) = (\tilde{S}A)^{\omega} \setminus \Reach(\CG_{\lambda}),\\
+&\Buchi(\CG_{\lambda}) = ((\tilde{S}A)^*BA)^{\omega}, & \coBuchi(\CG_{\lambda}) = (\tilde{S}A)^{\omega} \setminus \Buchi(\CG_{\lambda}).
+\end{align*}
+
+Our ultimate goal is to prove that the safety and co-Büchi objectives in $\CG_{\lambda}$ are probability-wise equivalent to the direct fixed window and fixed window ones in $\CG$, modulo a well-defined mapping between histories, runs and strategies. This will induce the correctness of our reduction.
+
+\paragraph{Mapping.}
+Fix an initial state $s_{init}$ in $\CG$ and let $\tilde{s}_{init}$ be its corresponding initial state in $\CG_{\lambda}$. Let $\Hists(\CG, s_{init})$ denote the histories of $\CG$ starting in $s_{init}$. We start by defining a bijective mapping $\pi_{\CG_{\lambda}}$, and its inverse $\pi_{\CG}$, between histories of $\Hists(\CG, s_{init})$ and $\Hists(\CG_{\lambda}, \tilde{s}_{init})$. We use $\pi_{\CG_{\lambda}}: \Hists(\CG, s_{init}) \rightarrow \Hists(\CG_{\lambda}, \tilde{s}_{init})$ for the $\CG$-to-$\CG_{\lambda}$ direction, and $\pi_{\CG}: \Hists(\CG_{\lambda}, \tilde{s}_{init}) \rightarrow \Hists(\CG, s_{init})$ for the opposite one. We define $\pi_{\CG_{\lambda}}$ inductively as follows.
+\begin{itemize}
+\item $\pi_{\CG_{\lambda}}(s_{init}) = \tilde{s}_{init}$.
+\item Let $h \in \Hists(\CG, s_{init}), \tilde{h} = \pi_{\CG_{\lambda}}(h), a \in A, s \in S$. Then, $\pi_{\CG_{\lambda}}(h \cdot a \cdot s) = \tilde{h} \cdot a \cdot \tilde{s}$, where $\tilde{s}$ is obtained from $\Last(\tilde{h})$, $a$ and $s$ following the unfolding construction.
+\end{itemize}
+We define $\pi_{\CG}$ as its inverse, i.e., the function projecting histories of $\Hists(\CG_{\lambda}, \tilde{s}_{init})$ to $(SA)^*S$. We naturally extend these mappings to runs based on this inductive construction.
+
+Now, we also extend these mappings to strategies for both players. Let $\sigma$ be a strategy in $\CG$. We define its twin strategy $\tilde{\sigma} = \pi_{\CG_{\lambda}}(\sigma)$ in $\CG_{\lambda}$ as follows: for all $\tilde{h} \in \Hists(\CG_{\lambda}, \tilde{s}_{init}), \tilde{\sigma}(\tilde{h}) = \sigma(\pi_{\CG}(\tilde{h}))$. Note that this strategy is well-defined as $\CG$ and $\CG$ share the same actions and $\pi_{\CG}$ is a proper function over $\Hists(\CG_{\lambda}, \tilde{s}_{init})$ (i.e., each history $\tilde{h}$ has an image in $\Hists(\CG, s_{init})$). Moreover, if $\sigma$ is a strategy for the first (resp. second) player in the SG $\CG$, its twin strategy $\tilde{\sigma}$ is also a strategy for the first (resp. second) player by the unfolding construction.
+Similarly, given a strategy $\tilde{\sigma}$ in $\CG_{\lambda}$, we build a twin strategy $\sigma = \pi_{\CG}(\tilde{\sigma})$ using $\pi_{\CG_{\lambda}}$. Hence, we also have a bijection over strategies.
+
+We say that two objects (histories, runs, strategies) are $\pi$-corresponding if they are the image of one another through mappings $\pi_{\CG}$ and $\pi_{\CG_{\lambda}}$.
+
+\paragraph{Probability-wise equivalence.}
+For any history $h$, we denote by $\Cyl(h)$ the cylinder set spanned by it, i.e., the set of all runs prolonging $h$. Cylinder set forms the base of the $\sigma$-algebra used to define a probability in MCs. We show that our mappings preserve probabilities of cylinder sets.
+
+\begin{lem}
+Let $\CG, \CG_{\lambda}, \pi_{\CG}$ and $\pi_{\CG_{\lambda}}$ be defined as above. Fix any couple of $\pi$-corresponding strategies for the first player $(\sigma, \tilde{\sigma})$ for $\CG$ and $\CG_{\lambda}$ respectively and also $\pi$-corresponding strategies for the second player $(\gamma, \tilde{\gamma})$.  Then, for any couple of $\pi$-corresponding histories $(h, \tilde{h})$ in $\Hists(\CG, s_{init}) \times \Hists(\CG_{\lambda}, \tilde{s}_{init})$, we have that
+\begin{equation}
+\IP_{\CG, s_{init}}^{\sigma, \gamma} [\Cyl(h)] = \IP_{\CG_{\lambda}, \tilde{s}_{init}}^{\tilde{\sigma}, \tilde{\gamma}} [\Cyl(\tilde{h})].
+\end{equation}
+\end{lem}
+
+\begin{proof}
+We fix $\CG, \CG_{\lambda}, \pi_{\CG}, \pi_{\CG_{\lambda}}$, a couple of $\pi$-corresponding strategies for the first player $(\sigma, \tilde{\sigma})$ and also a couple of $\pi$-corresponding strategies for the second player $(\gamma, \tilde{\gamma})$. We prove the equality by induction on histories. The base case, for $h = s_{init}$ and $\tilde{h} = \tilde{s}_{init}$, is trivial, as we have
+\begin{align*}
+\IP^{\sigma, \gamma}_{\CG, s_{init}}[\Cyl(h)]
+&= \IP^{\sigma, \gamma}_{\CG, s_{init}}[Runs(\CG, s_{init}]\\
+&= 1\\
+&=\IP^{\tilde{\sigma}, \tilde{\gamma}}_{\CG_{\lambda}, \tilde{s}_{init}}[Runs(\CG_{\lambda}, \tilde{s}_init)]\\
+&= \IP^{\tilde{\sigma}, \tilde{\gamma}}_{\CG_{\lambda}, \tilde{s}_{init}}[\Cyl(\tilde{h})].
+\end{align*}
+
+Now, assume that the equality we want to prove is true for a couple of $\pi$-corresponding histories $(h, \tilde{h})$. Consider any one-step extension of these histories, say $(h \cdot a \cdot s, \tilde{h} \cdot a \cdot \tilde{s})$ for $a \in A, s \in S$ and $\tilde{h} \cdot a \cdot \tilde{s} = \pi_{\CG_{\lambda}}(h \cdot a \cdot s)$. Let us expand the equality to prove as follows (we assume w.l.o.g. that $\Last(h) \in S_1$ because the reasoning for $S_2$ is similar with $\gamma$ instead of $\sigma$):
+\begin{align*}
+\IP_{\CG, s_{init}}^{\sigma, \gamma} [\Cyl(h \cdot a \cdot s)] = \IP_{\CG_{\lambda}, \tilde{s}_{init}}^{\tilde{\sigma}, \tilde{\gamma}} [\Cyl(\tilde{h} \cdot a \cdot \tilde{s})]\\
+\iff \IP^{\sigma, \gamma}_{\CG, s_{init}}[h] \cdot \sigma(h)(a) \cdot \delta(\Last(h), a)(s) = \IP^{\tilde{\sigma}, \tilde{\gamma}}_{\CG_{\lambda}, \tilde{s}_{init}}[\tilde{h}] \cdot \tilde{\sigma}(\tilde{h})(a) \cdot \tilde{\delta}(\Last(\tilde{h}, a)(\tilde{s}).
+\end{align*}
+Now, observe that $\sigma(h)(a) = \tilde{\sigma}(\tilde{h})(a)$ since $\sigma$ and $\tilde{\sigma}$ are $\pi$-corresponding strategies and $h$ and $\tilde{h}$ are $\pi$-corresponding histories. Furthermore, $\delta(\Last(h), a)(s) = \tilde{\delta}(\Last(\tilde{h}), a)(\tilde{s})$ by construction of the unfolding. Now since $\IP^{\sigma, \gamma}_{\CG, s_{init}}[h] = \IP^{\tilde{\sigma}, \tilde{\gamma}}_{\CG_{\lambda}, \tilde{s}_{init}}[\tilde{h}]$ by induction hypothesis, we are done.
+\end{proof}
+
+Since the previous lemma holds for all cylinders, we may extend the result to any event.
+
+\begin{corollary}
+Let $\CG, \CG_{\lambda}, \pi_{\CG}$ and $\pi_{\CG_{\lambda}}$ be defined as above. Fix any couple of $\pi$-corresponding strategies for the first player $(\sigma, \tilde{\sigma})$ for $\CG$ and $\CG_{\lambda}$ respectively and also $\pi$-corresponding strategies for the second player $(\gamma, \tilde{\gamma})$. Then, for any couple of $\pi$-corresponding mesurable objectives $(E, \tilde{E}) \subseteq Runs(\CG, s_{init}) \times Runs(\CG, \tilde{s}_{init})$, we have that
+$$
+\IP^{\sigma, \gamma}_{\CG, s_{init}}[E] = \IP^{\tilde{\sigma}, \tilde{\gamma}}_{\CG_{\lambda}, \tilde{s}_{init}}[\tilde{E}].
+$$
+\end{corollary}
+
+\paragraph{Correctness of the reduction.}
+We may now establish our reductions.
+
+\begin{lem}
+Let $\CG = \SG$ be a SG, $\lambda > 0$ be the window size, $\Omega \in \{\textbf{mp}, \textbf{par}\}$, $\CG_{\lambda} = (\tilde{S}, \tilde{S}_1, \tilde{S}_2, A, \tilde{\delta})$ be the unfolding of $\CG$ defined as above for variant $\Omega, s \in S$ be a state of $\CG$, and $\tilde{s} \in \tilde{S}$ be its $\pi$-corresponding state in $\CG_{\lambda}$. The following assertions hold.
+\begin{enumerate}
+\item For any strategy $\sigma$ for the first player in $\CG$, there exists a strategy $\tilde{\sigma}$ for the first player in $\CG_{\lambda}$ such that
+$$
+\inf_{\tilde{\gamma} \in \tilde{\Gamma}}\IP_{\CG_{\lambda}, \tilde{s}}^{\tilde{\sigma}, \tilde{\gamma}}[\Safety(\CG_{\lambda})]
+= \inf_{\gamma \in \Gamma} \IP_{\CG, s}^{\sigma, \gamma}[\DFW_{\Omega}(\lambda)]
+~~\wedge~~
+\inf_{\tilde{\gamma} \in \tilde{\Gamma}} \IP_{\CG_{\lambda}, \tilde{s}}^{\tilde{\sigma}, \tilde{\gamma}}[\coBuchi(\CG_{\lambda})]
+=  \inf_{\gamma \in \Gamma} \IP_{\CG, s}^{\sigma, \gamma}[\FW_{\Omega}(\lambda)]
+$$
+\item For any strategy $\tilde{\sigma}$ for the first player in $\CG_{\lambda}$, there exists a strategy $\sigma$ for the first player in $\CG$ such that
+$$
+\inf_{\gamma \in \Gamma} \IP_{\CG, s}^{\sigma, \gamma}[\DFW_{\Omega}(\lambda)]
+= \inf_{\tilde{\gamma} \in \tilde{\Gamma}} \IP_{\CG_{\lambda}, \tilde{s}}^{\tilde{\sigma}, \tilde{\gamma}}[\Safety(\CG_{\lambda})]
+~~\wedge~~
+\inf_{\gamma \in \Gamma} \IP_{\CG, s}^{\sigma, \gamma}[\FW_{\Omega}(\lambda)]
+= \inf_{\tilde{\gamma} \in \tilde{\Gamma}} \IP_{\CG_{\lambda}, \tilde{s}}^{\tilde{\sigma}, \tilde{\gamma}}[\coBuchi(\CG_{\lambda})]
+$$
+\item For any strategy $\gamma$ for the second player in $\CG$, there exists a strategy $\tilde{\gamma}$ for the second player in $\CG_{\lambda}$ such that
+$$
+\sup_{\tilde{\sigma} \in \tilde{\Sigma}}\IP_{\CG_{\lambda}, \tilde{s}}^{\tilde{\sigma}, \tilde{\gamma}}[\Safety(\CG_{\lambda})]
+= \sup_{\sigma \in \Sigma} \IP_{\CG, s}^{\sigma, \gamma}[\DFW_{\Omega}(\lambda)]
+~~\wedge~~
+\sup_{\tilde{\sigma} \in \tilde{\Sigma}} \IP_{\CG_{\lambda}, \tilde{s}}^{\tilde{\sigma}, \tilde{\gamma}}[\coBuchi(\CG_{\lambda})]
+=  \sup_{\sigma \in \Sigma} \IP_{\CG, s}^{\sigma, \gamma}[\FW_{\Omega}(\lambda)]
+$$
+\item For any strategy $\tilde{\gamma}$ for the second player in $\CG_{\lambda}$, there exists a strategy $\gamma$ for the second player in $\CG$ such that
+$$
+\sup_{\sigma \in \Sigma} \IP_{\CG, s}^{\sigma, \gamma}[\DFW_{\Omega}(\lambda)]
+= \sup_{\tilde{\sigma} \in \tilde{\Sigma}} \IP_{\CG_{\lambda}, \tilde{s}}^{\tilde{\sigma}, \tilde{\gamma}}[\Safety(\CG_{\lambda})]
+~~\wedge~~
+\sup_{\sigma \in \Sigma} \IP_{\CG, s}^{\sigma, \gamma}[\FW_{\Omega}(\lambda)]
+= \sup_{\tilde{\sigma} \in \tilde{\Sigma}} \IP_{\CG_{\lambda}, \tilde{s}}^{\tilde{\sigma}, \tilde{\gamma}}[\coBuchi(\CG_{\lambda})]
+$$
+\end{enumerate}
+Moreover, such strategies can be obtained through mappings $\pi_{\CG}$ and $\pi_{\CG_{\lambda}}$.
+\end{lem}
+
+\begin{proof}
+First, one can see that $\Safety(\CG_{\lambda})$ (resp. $\coBuchi(\CG_{\lambda})$ is $\pi$-corresponding with $\DFW_{\Omega}(\lambda)$ (resp. $\FW_{\Omega}(\lambda)$).  As noted earlier, this correspondence is trivial by construction of the unfoldings. Consider the safety case: a run $\tilde{\rho}$ in $\CG_{\lambda}$ belongs to $\Safety(\CG_{\lambda})$ if and only if all the windows along $\rho = \pi_{\CG}(\tilde{\rho})$ close within $\lambda$ steps. Similarly, a run $\tilde{\rho}$ in $\CG_{\lambda}$ belongs to $\coBuchi(\CG_{\lambda})$ if and only if it visits $B$ finitely often, hence if and only if $\rho = \pi_{\CG}(\tilde{\rho})$ contains a finite number of windows left open after $\lambda$ steps.
+Moreover, the suprema and infima do not cause any problem since we have the preceding corollary that give a one-one correspondence thanks to the bijections $\pi_{\CG}$ and $\pi_{\CG_{\lambda}}$ that preserves the probability of any measurable objectives.
+\end{proof}
+
+Intuitively, to obtain a strategy $\sigma$ in $\CG$ from a strategy $\tilde{\sigma}$ in the unfolding $\CG_{\lambda}$, we have to integrate in the memory of $\sigma$ the additionnal information encoded in $\tilde{S}$: hence the memory required by $\sigma$ is the one used by $\tilde{\sigma}$ with a blow-up polynomial in $|\tilde{S}|$.
+
+\end{document}
+
+
+
+
+
+
+
+
+
+
+
+
+
+

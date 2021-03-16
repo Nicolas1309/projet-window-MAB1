@@ -2,4 +2,7 @@
 *.log
 *.out
 *.synctex.gz
+*.bbl
+*.blg
+windows_in_SG.pdf
 proof_gw_mp.pdf
