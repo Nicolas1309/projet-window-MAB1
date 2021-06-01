@@ -1,0 +1,102 @@
+\documentclass{article}
+
+\usepackage{tabularx}
+\usepackage{graphicx}
+\usepackage{url}
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage[french]{babel}
+\usepackage{amsmath, amssymb, amsthm, verbatim}
+\usepackage{IEEEtrantools}
+\usepackage[margin=1in]{geometry}
+\usepackage[colorlinks, linkcolor=blue]{hyperref}
+\usepackage{epigraph}
+\usepackage{mathrsfs}
+\usepackage[toc,page]{appendix}
+\usepackage{xcolor}
+\usepackage{enumitem}
+\usepackage{complexity}
+
+\usepackage{algorithmic, algorithm}
+\usepackage{float}
+
+\newcommand{\IR}{\mathbb{R}}
+\newcommand{\IQ}{\mathbb{Q}}
+\newcommand{\IZ}{\mathbb{Z}}
+\newcommand{\IN}{\mathbb{N}}
+\newcommand{\CG}{\mathcal{G}}
+\newcommand{\SG}{(S, S_1, S_2, A, \delta)}
+\newcommand{\CD}{\mathcal{D}}
+\newcommand{\Hists}{\textbf{Hists}}
+\newcommand{\Last}{\textbf{Last}}
+\newcommand{\Cyl}{\textbf{Cyl}}
+\newcommand{\Reach}{\textbf{Reach}}
+\newcommand{\Safety}{\textbf{Safety}}
+\newcommand{\Buchi}{\textbf{Buchi}}
+\newcommand{\coBuchi}{\textbf{coBuchi}}
+\newcommand{\DFW}{\textbf{DFW}}
+\newcommand{\FW}{\textbf{FW}}
+\theoremstyle{plain}
+
+\newtheorem{thm}{Theorem}
+\newtheorem{property}{Property}
+\newtheorem{prop}[thm]{Proposition}
+\newtheorem{lem}[thm]{Lemma}
+\newtheorem{corollary}[thm]{Corollary}
+\newtheorem{rem}{Remark}
+
+\title{Bref historique du projet intégré}
+\author{Nicolas Lecomte}
+\date{\today}
+
+\begin{document}
+
+\maketitle
+
+Tout d'abord, j'ai commencé par me familiariser avec les jeux sur graphe via tout le premier chapitre de la thèse de Mickael Randour \cite{memoireMickael}.
+
+Ensuite, pour me familiariser avec les objectifs de fenêtres, j'ai commencé par le cas des processus de décision de Markov (MDP) avec le papier \cite{LifeIsRandom}.
+J'ai beaucoup travaillé sur ce papier étant donné qu'il a un intérêt important pour la suite.
+
+Après, je me suis intéressé à certains objectifs de fenêtres dans les jeux à deux joueurs avec un autre article \cite{LookingAtMPAndTP}. Dans ce papier, j'ai aussi travaillé sur une correction d'un algorithme qui était erroné: j'ai développé une preuve et implémenté l'ancienne et la nouvelle version de l'algorithme pour les comparer et avoir un exemple concret montrant que l'ancien algorithme n'était pas correct.
+
+A la fin de cette partie, je me suis intéressé aux jeux stochastiques (SG) dans le but d'étendre les résultats du papier sur les MDP \cite{LifeIsRandom}, ce qui a été fait pendant tout le reste de l'année et qui, actuellement, semble être une piste assez prometteuse.
+
+Afin de me familiariser avec les jeux stochastiques et les résultats déjà existants dans la littérature, je me suis intéressé à plusieurs papiers:
+
+\begin{itemize}
+\item \textit{A Survey of Stochastic $\omega$-Regular Games} \cite{DBLP:journals/jcss/ChatterjeeH12} : un survey très pratique qui explique la plupart des notions de bases des SG, donne des résultats sur la complexité et la mémoire nécessaire pour les objectifs de type Safety, Reachability, Büchi, coBüchi, Rabin, Streett, Parity et Müller. Évidemment, en tant que Survey, il est aussi fait mention d'un grand nombre de références à consulter pour avoir les détails de certains points plus précis. On parle aussi de jeux concurrents, mais je ne m'y suis pas trop intéressé.
+
+\item \textit{Perfect-Information Stochastic Games with Generalized Mean-Payoff Objectives} \cite{DBLP:journals/corr/Chatterjee016} : un papier qui traite des objectifs de Mean-Payoff généralisé qui consiste en une conjonction d'objectifs de Mean-Payoff. La complexité du problème de décision est $\coNP$-complet et des stratégies memoryless suffisent. Ce papier n'a pas été très utile étant donné qu'il discute d'un objectif un peu éloigné de ce que je visais.
+
+\item \textit{Stochastic Games with Lexicographic Reachability-Safety Objectives} \cite{DBLP:journals/corr/abs-2005-04018} : papier considérant des objectifs qui sont composés de plusieurs objectifs de Reachability ou Safety ordonnés selon un ordre lexicographique. Le papier fait plusieurs fois référence à des algorithmes que je ne connaissais pas, ce qui m'a fait explorer les papiers suivants.
+
+\item \textit{The Complexity of Stochastic Games} \cite{DBLP:journals/iandc/Condon92} : papier important et revenant très souvent dans d'autres papiers. Condon donne un algorithme pour les problèmes d'atteignabilité dans le cadre des simple stochastic games (SSG) et montre que le problème est dans $\NP \cap \coNP$.
+
+\item \textit{The complexity of mean payoff games on graphs} \cite{DBLP:journals/tcs/ZwickP96} : c'est une sorte de complément au papier précédent puisqu'il donne une réduction polynomiale des SG (avec objectif de mean-payoff) aux SSG et donne un algorithme pseudo-polynomial pour les SG avec objectif de mean-payoff.
+
+\item \textit{Algorithms for Simple Stochastic Games} \cite{MemoireSSG} : il s'agit d'un mémoire assez complet et très utile reprenant les algorithmes existants autour du problème des SSG.
+
+\item \textit{The Complexity of Solving Stochastic Games on Graphs} \cite{DBLP:conf/isaac/AnderssonM09} : un papier très intéressant et important qui montre que les tâches suivantes sont polynomialement équivalentes entre elles : résoudre les stochastic parity games, les SSG, les SG avec objectif de Terminal Payoff, les SG avec objectif de Mean-Payoff et les SG avec Discounted Payoff. Cet article montre quelques réductions polynomiales, mais réfère à de nombreux autres articles (ici, résoudre veut à la fois dire "calculer les valeurs de chaque état" et "calculer une stratégie optimale pour chaque joueur").
+\end{itemize}
+
+\bibliographystyle{alpha}
+\bibliography{biblio.bib}
+
+\end{document}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
